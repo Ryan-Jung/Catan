@@ -58,8 +58,7 @@ $("body").on("click", ".roads", event => {
       headers: new Headers({ "Content-Type": "application/json" })
     });
   }
-  if (event.target.classList.contains("tile")) {
-  }
+
 });
 
 $(".buildroad").on("click", function() {
