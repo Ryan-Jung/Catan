@@ -14,7 +14,6 @@ const bodyParser = require("body-parser");
 
 const index = require("./routes/index");
 const users = require("./routes/users");
-const tests = require("./routes/tests");
 const register = require("./routes/register");
 const lobby = require("./routes/lobby");
 const game = require("./routes/game");
@@ -49,7 +48,6 @@ app.use(passport.session());
 //Define routes
 app.use("/", index);
 app.use("/users", users);
-app.use("/tests", tests);
 app.use("/register", register);
 app.use("/lobby", lobby);
 app.use("/game", game);
