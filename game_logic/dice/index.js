@@ -17,7 +17,7 @@ module.exports = db => {
       return canRollDice(gameId)
         .then( rollable => {
           if(rollable){
-            const diceRoll = Math.ceil(Math.random() * 12);
+            const diceRoll = Math.ceil(Math.random() * 6) + Math.ceil(Math.random() * 6);
             return db.games.rollDice(gameId,diceRoll);
           }else{
             throw "Not Rollable";
