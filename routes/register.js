@@ -13,15 +13,13 @@ router.post('/', function(request, response, next){
   const email = request.body['email'];
   const password = request.body['password'];
   bcrypt.hash(password, 10, (error,hashedPass) => {
-    db.users.createUser(username,email,hashedPass, username+email)
+    db.users.createUser(username,email,hashedPass)
       .then( (successMsg) =>  {
-                                response.redirect("./");
-                                console.log(successMsg);
+                                response.sendStatus(200);
                               }
 
       ).catch( (rejectMsg) => {
-                                response.redirect("./register");
-                                console.log(rejectMsg);
+                                response.sendStatus(405);
                               }
       )
   })

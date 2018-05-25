@@ -23,11 +23,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true
-      },
-      profile_pic_path:{
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
       }
     })
   },
