@@ -77,7 +77,6 @@ router.get("/:id", (request, response, next) => {
               db.players.getResources(userId,gameId),
               gameLogic.stats.getPlayerStats(gameId)])
   .then(([gameInfo, playerDevCard,playerResources,playerInfo]) => {
-    //console.log(Object.assign({}, gameInfo, {playerDevCard},{playerResources}));
     response.render("game", Object.assign({},
                                           gameInfo,
                                           {playerDevCard},
@@ -94,14 +93,13 @@ router.post("/:id/vertex",
       (request, response, next) => {
   const{id: userId, username} = request.user;
   const{id: gameId} = request.params;
-  console.log(request.body);
   const {  x: x,
            y: y,
            item: buildingType} = request.body;
   gameLogic.building.buildStructure(userId, gameId, x, y , buildingType)
   .then( () => {
       const io = request.app.get("io");
-      io.of('game').emit(`refresh-${gameId}`);
+      io.of('game').emit(`refresh-board-${gameId}`);
       io.of('game').emit(`message-${gameId}`, {message: `${username} placed a ${buildingType}.`});
       response.sendStatus(200);
     })
@@ -125,7 +123,7 @@ router.post("/:id/edge",
   gameLogic.building.buildRoad(userId,gameId,xStart,yStart,xEnd,yEnd)
   .then( () => {
     const io = request.app.get("io");
-    io.of('game').emit(`refresh-${gameId}`);
+    io.of('game').emit(`refresh-board-${gameId}`);
     io.of('game').emit(`message-${gameId}`, {message: `${username} placed a road.`});
     response.sendStatus(200);
   })
@@ -139,19 +137,25 @@ router.post("/:id/dice",
       gameReady,
       isCurrentPlayer,
       (request,response,next) => {
+
   const {username} = request.user;
   const {id: gameId} = request.params;
   gameLogic.dice.rollDice(gameId)
   .then( (dice) => {
-      const io = request.app.get("io");
-      io.of('game').emit(`refresh-${gameId}`);
-      io.of('game').emit(`message-${gameId}`, {message: `${username}rolled a ${dice.dice_roll}.`});
+    const io = request.app.get("io");
+      io.of('game').emit(`message-${gameId}`, {message: `${username} rolled a ${dice.dice_roll}.`});
+      io.of('game').emit(`diceroll-${gameId}`, dice.dice_roll);
       if(dice.dice_roll == 7){
         io.of('game').emit(`robber-${gameId}`);
       }
-      gameLogic.resourceAllocation.updateResources(gameId);
+  }).then(()=>{
+    gameLogic.resourceAllocation.updateResources(gameId);
   })
-  .then( () => response.sendStatus(200))
+  .then( () => {
+    response.sendStatus(200);
+    const io = request.app.get("io");
+    io.of('game').emit(`refresh-stats-${gameId}`);
+  })
   .catch( (error) => {
     console.log(error);
     response.sendStatus(401);
@@ -196,12 +200,11 @@ router.post("/:id/move-robber",
     (request,response,next) => {
   const {id: gameId} = request.params;
   const {tile_order : tileOrder} = request.body;
-  //const tileOrder = 5;
   gameLogic.robber.moveRobber(gameId,tileOrder)
   .then( () => {
     response.sendStatus(200)
     const io = request.app.get("io");
-    io.of('game').emit(`refresh-${gameId}`);
+    io.of('game').emit(`refresh-board-${gameId}`);
   })
   .catch( (error) => {
     console.log(error);
@@ -213,11 +216,13 @@ router.post("/:id/endturn",
       gameReady,
       isCurrentPlayer,
       (request,response,next) => {
-  const { id: userId} = request.user;
+  const { id: userId,username} = request.user;
   const {id: gameId} = request.params;
   gameLogic.turn.updatePlayerTurn(gameId)
   .then( () => {
+    const io = request.app.get("io");
     io.of('game').emit(`message-${gameId}`, {message: `${username} has ended his turn!`});
+    io.of('game').emit(`refresh-stats-${gameId}`);
     response.sendStatus(200);
   })
   .catch( (error) => {

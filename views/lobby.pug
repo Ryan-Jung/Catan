@@ -25,6 +25,16 @@ body
                         //- button.front.btn.btn-primary(type='button') Create Game
 
                 .row-7
+                    //form.join(method = 'post', action='/game/join')
+                      //br
+                      //h2 Rejoin Game
+                      //each game in rejoinableGames
+                        //.rejoinableGame(data=game.id)
+                          //.row
+                            //.col.gameName=game.game_name
+                            //.col.players=game.player_count+'/'+game.player_limit
+                      //input.front.btn.btn-primary(type='submit', value='Rejoin Game')
+
                     form.join(method = 'post', action='/game/join')
                       br
                       h2 Join Game

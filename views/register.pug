@@ -6,14 +6,27 @@ block head
 block content
    .main.container.auth
         h1.reg_title Register
-        form(method='POST' action='/register').form
+        form#registration(method='POST' action='/register').form
           div.form-group
-            input.form-control(type='email' id='email' placeholder='Email' name='email')
+            input#email.form-control(type='email' placeholder='Email' name='email')
           div.form-group
             input#name.form-control(type='text', placeholder='Username' name='username')
           div.form-group
             input#pw.form-control(type='password', placeholder='Password' name='password')
           div.form-group
             input#pw2.form-control(type='password', placeholder='Confirm Password' name='confirmPassword')
-             
+
           button.front.btn.btn-primary.reg_btn(type='submit') Sign Up
+
+
+          .alert.alert-success.text-center.fixed-top#successMsg(style='display:none')
+            strong Success!
+
+          .alert.alert-danger.text-center.fixed-top#errorMsg(style= 'display:none')
+            strong Error!
+            p Msg
+
+
+
+block scripts
+  script(src="/scripts/register.js")

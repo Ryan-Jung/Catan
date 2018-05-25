@@ -31,7 +31,12 @@ module.exports = {
                     allowNull: false
                 }
             }
-        );
+        ).then( () => {
+          return queryInterface.addConstraint('players', ['user_id','game_id'],{
+              type: 'unique',
+              name: 'unique_user_game_id'
+            })
+        });
     },
     down: (queryInterface, Sequelize) => {
        return queryInterface.dropTable('Players');
