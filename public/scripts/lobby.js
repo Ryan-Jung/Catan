@@ -52,7 +52,13 @@ $("form.join").on("submit", event => {
           method: "post",
           credentials: "include"
     })
-  .then( () => window.location.replace(`/game/${game_id}`))
+  .then( (response) => {
+    if( response.status === 200){
+      window.location.replace(`/game/${game_id}`);
+    }else{
+      alert("You can't join this game");
+    }
+  })
   .catch( error => console.log(error))
   }else{
       alert("Please select a game!");

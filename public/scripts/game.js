@@ -1,6 +1,9 @@
 const gameId = document.querySelector("#gameId").value;
 var socket = io('/game');
 let action = "";
+
+
+
 $(".vertex[data-item='empty']").toggle();
 $(".edge[data-owner='0']").toggle();
 $(".robber:not([data-robber])").toggle();
@@ -11,6 +14,15 @@ $( document ).ready(function() {
   if($(".vertex[data-item='settlement']").length >= $(".playercards").length * 2){
     $("#roll").show();
   }
+  fetch(`/game/${gameId}/status`,{
+    method: "get",
+    credentials: "include",
+    headers: {"Cache-Control":"no-cache"}
+  })
+  .then( (response) => response.json())
+  .then( (jsonResponse) => {
+    $('#messages').append('<li><em>' + jsonResponse + '</em></li>');
+  });
 });
 
 
@@ -192,6 +204,7 @@ socket.on(`refresh-stats-${gameId}`, () => {
 socket.on(`robber-${gameId}`, ()=>{
   $(".robber:not([data-robber])").toggle();
 });
+
 function buildModal(item, event) {
   $("#Modal").modal('show');
   if (event == "dice-roll") {
@@ -209,11 +222,14 @@ function buildModal(item, event) {
   timer = setTimeout(function() {
     $("#Modal").modal('hide');
   }, 2000);
-}
+};
+
 socket.on(`diceroll-${gameId}`, (data) =>{
   buildModal(data, "dice-roll");
 });
+
 socket.on(`message-${gameId}`, (data) => {
+  console.log("message recieved");
   $('#messages').append('<li><em>' + data.message  + '</em></li>');
 });
 
@@ -221,3 +237,4 @@ socket.on(`message-${gameId}`, (data) => {
 function endTurn() {
   buildModal(null, "end-turn");
 }
+

@@ -52,6 +52,26 @@ router.post("/", function(req, res, next) {
     });
 });
 
+router.get("/:id/status", (request,response,next) => {
+
+  const {id: gameId} = request.params;
+  if(gameId){
+    db.games.getPlayerCount(gameId)
+    .then( (game) => {
+      const {player_count:playerCount, player_limit: playerLimit} = game;
+      let message = "";
+      if(playerCount != playerLimit){
+        message = `Waiting on ${playerLimit - playerCount} more players before starting`;
+      }else{
+        message = "Game has begun!";
+      }
+      response.status(200).send(JSON.stringify(message));
+    })
+  }else{
+    response.sendStatus(400);
+  }
+  
+});
 router.post("/join/:id",(request,response,next) => {
   const {id: userId, username } = request.user;
   const {id: gameId} = request.params;
@@ -65,7 +85,10 @@ router.post("/join/:id",(request,response,next) => {
     response.redirect(200,`/game/${gameId}`);
     io.of('game').emit(`message-${gameId}`, {message: `${username} has joined!`});
   })
-  .catch( (error) => console.log(error));
+  .catch( (error) => { 
+    console.log(error);
+    response.sendStatus(400);
+    });
 });
 
 router.get("/:id", (request, response, next) => {
