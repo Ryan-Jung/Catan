@@ -1,16 +1,31 @@
 const gameId = document.querySelector("#gameId").value;
 var socket = io('/game');
 let action = "";
+
+
+
 $(".vertex[data-item='empty']").toggle();
 $(".edge[data-owner='0']").toggle();
 $(".robber:not([data-robber])").toggle();
 $("#roll").hide();
 
+function sendMessage(message){
+  $('#messages').append('<li><em>' + message + '</em></li>');
+}
 
 $( document ).ready(function() {
   if($(".vertex[data-item='settlement']").length >= $(".playercards").length * 2){
     $("#roll").show();
   }
+  fetch(`/game/${gameId}/status`,{
+    method: "get",
+    credentials: "include",
+    headers: {"Cache-Control":"no-cache"}
+  })
+  .then( (response) => response.json())
+  .then( (jsonResponse) => {
+    sendMessage(jsonResponse);
+  });
 });
 
 
@@ -24,9 +39,14 @@ $("body").on("click",".vertex", event => {
       body: JSON.stringify({ x, y, item:action}),
       headers: new Headers({ "Content-Type": "application/json" })
     })
-    .then( ()=>{
+    .then( (response) => {
       if($(".vertex[data-item='settlement']").length === $(".playercards").length * 2){
         $("#roll").show();
+      }
+      if(response.status === 401){
+        sendMessage("It is not your turn yet!");
+      }else if(response.status === 400){
+        sendMessage("Not enough resources to place here");
       }
     })
   }
@@ -56,6 +76,13 @@ $("body").on("click", ".roads", event => {
       credentials: "include",
       body: JSON.stringify({ x_start, y_start, x_end, y_end }),
       headers: new Headers({ "Content-Type": "application/json" })
+    })
+    .then( (response) => {
+      if(response.status === 401){
+        sendMessage("It is not your turn yet!");
+      }else if(response.status === 400){
+        sendMessage("Not enough resources to place here");
+      }
     });
   }
 
@@ -117,7 +144,7 @@ $("body").on("click","#roll", event => {
     if( response.status === 200){
 
     }else{
-      alert("Can't do that");
+      sendMessage("Not your turn yet!");
     }
   });
 });
@@ -132,7 +159,7 @@ $("body").on("click","#end", event => {
     if( response.status === 200){
       endTurn();
     }else{
-      alert("Can't do that");
+      sendMessage("Not your turn yet!");
     }
   });
  });
@@ -192,6 +219,7 @@ socket.on(`refresh-stats-${gameId}`, () => {
 socket.on(`robber-${gameId}`, ()=>{
   $(".robber:not([data-robber])").toggle();
 });
+
 function buildModal(item, event) {
   $("#Modal").modal('show');
   if (event == "dice-roll") {
@@ -209,15 +237,18 @@ function buildModal(item, event) {
   timer = setTimeout(function() {
     $("#Modal").modal('hide');
   }, 2000);
-}
+};
+
 socket.on(`diceroll-${gameId}`, (data) =>{
   buildModal(data, "dice-roll");
 });
+
 socket.on(`message-${gameId}`, (data) => {
-  $('#messages').append('<li><em>' + data.message  + '</em></li>');
+  sendMessage(data.message);
 });
 
 
 function endTurn() {
   buildModal(null, "end-turn");
 }
+

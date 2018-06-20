@@ -19,8 +19,7 @@ module.exports = {
                 },
                 user_id: {
                     type: Sequelize.INTEGER,
-                    allowNull: false,
-                    unique: true
+                    allowNull: false
                 },
                 turn_order: {
                     type: Sequelize.INTEGER,
