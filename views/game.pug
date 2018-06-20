@@ -75,10 +75,10 @@ body
                 span.tile(data-tile-id= index, data-prob=tile.die_number, data-type=tile.resource_type, data-robber=tile.robber)
                 span.robber(data-tile_order=index, data-robber=tile.robber)
               each vertex in vertices
-                span.vertex(data-x=vertex.x, data-y=vertex.y, data-owner= vertex.user_id%4 data-item=vertex.item)
+                span.vertex(data-x=vertex.x, data-y=vertex.y, data-owner= vertex.user_id%5 data-item=vertex.item)
               .roads
                 each edge in edges
-                  span.edge(data-x_start=edge.x_start, data-y_start=edge.y_start, data-x_end=edge.x_end, data-y_end=edge.y_end, data-owner=edge.user_id%4, data-item=edge.road )
+                  span.edge(data-x_start=edge.x_start, data-y_start=edge.y_start, data-x_end=edge.x_end, data-y_end=edge.y_end, data-owner=edge.user_id%5, data-item=edge.road )
 
     .col.col-2#game_info
       .row-sm-3

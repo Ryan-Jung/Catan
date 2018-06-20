@@ -61,6 +61,7 @@ body{
 }
 #messages li {
     padding: 3px 10px;
+    border-bottom: dotted grey 1px;
     }
     #messages li:nth-child(odd) {
     background: #eee;

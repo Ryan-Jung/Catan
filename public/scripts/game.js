@@ -9,6 +9,9 @@ $(".edge[data-owner='0']").toggle();
 $(".robber:not([data-robber])").toggle();
 $("#roll").hide();
 
+function sendMessage(message){
+  $('#messages').append('<li><em>' + message + '</em></li>');
+}
 
 $( document ).ready(function() {
   if($(".vertex[data-item='settlement']").length >= $(".playercards").length * 2){
@@ -21,7 +24,7 @@ $( document ).ready(function() {
   })
   .then( (response) => response.json())
   .then( (jsonResponse) => {
-    $('#messages').append('<li><em>' + jsonResponse + '</em></li>');
+    sendMessage(jsonResponse);
   });
 });
 
@@ -36,9 +39,14 @@ $("body").on("click",".vertex", event => {
       body: JSON.stringify({ x, y, item:action}),
       headers: new Headers({ "Content-Type": "application/json" })
     })
-    .then( ()=>{
+    .then( (response) => {
       if($(".vertex[data-item='settlement']").length === $(".playercards").length * 2){
         $("#roll").show();
+      }
+      if(response.status === 401){
+        sendMessage("It is not your turn yet!");
+      }else if(response.status === 400){
+        sendMessage("Not enough resources to place here");
       }
     })
   }
@@ -68,6 +76,13 @@ $("body").on("click", ".roads", event => {
       credentials: "include",
       body: JSON.stringify({ x_start, y_start, x_end, y_end }),
       headers: new Headers({ "Content-Type": "application/json" })
+    })
+    .then( (response) => {
+      if(response.status === 401){
+        sendMessage("It is not your turn yet!");
+      }else if(response.status === 400){
+        sendMessage("Not enough resources to place here");
+      }
     });
   }
 
@@ -129,7 +144,7 @@ $("body").on("click","#roll", event => {
     if( response.status === 200){
 
     }else{
-      alert("Can't do that");
+      sendMessage("Not your turn yet!");
     }
   });
 });
@@ -144,7 +159,7 @@ $("body").on("click","#end", event => {
     if( response.status === 200){
       endTurn();
     }else{
-      alert("Can't do that");
+      sendMessage("Not your turn yet!");
     }
   });
  });
@@ -229,8 +244,7 @@ socket.on(`diceroll-${gameId}`, (data) =>{
 });
 
 socket.on(`message-${gameId}`, (data) => {
-  console.log("message recieved");
-  $('#messages').append('<li><em>' + data.message  + '</em></li>');
+  sendMessage(data.message);
 });
 
 

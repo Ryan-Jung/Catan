@@ -128,7 +128,7 @@ router.post("/:id/vertex",
     })
   .catch( (error) => {
       console.log(error);
-      response.sendStatus(401);
+      response.sendStatus(400);
   });
 
 });
@@ -152,7 +152,7 @@ router.post("/:id/edge",
   })
   .catch( (error) => {
     console.log(error);
-    response.sendStatus(401);
+    response.sendStatus(400);
   });
 });
 
